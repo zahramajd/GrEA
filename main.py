@@ -5,15 +5,13 @@ import random
 # evaluation
 # dt = DTLZ2(4,14)
 # fitness_assignment(p, grid)
-
 '''
 Grid setting: grid is objevtive
 Fitness assignment: GR, GCD, GCPD
 Mating selection: Tournament Selection ? how many
-Variation: ??
+Variation: simulated binary crossover and polynomial mutation with both distribution indexes 20
 Environmental selection: Findout best, GR adjustment 
 '''
-
 # params
 num_variables = 4
 num_objectives = 3
@@ -21,6 +19,10 @@ n = 100
 number_evaluations = 1
 div = 5
 number_parents = 50
+pc = 1
+pm = 1/num_variables
+eta_c = 20
+eta_m = 20
 
 def initialize(n, num_variables):
     return np.random.rand(n, num_variables)
@@ -76,12 +78,6 @@ def mating_selection(p, grid, number_parents, num_variables, eval_func):
 
     return parents
 
-def variation():
-    pass
-
-def environmental_selection():
-    pass
-
 def dominance(ind1, ind2, eval_func):
     eval_ind1 = np.array(eval_func(ind1)).reshape(1, -1)
     eval_ind2 = np.array(eval_func(ind2)).reshape(1, -1)
@@ -126,6 +122,66 @@ def gcd(grid, grid_ind):
 
     return gcd
 
+def variation(parents, pc, pm, eta_c, eta_m):
+
+    # crossover
+    i = 0
+    children = np.empty((0, parents.shape[1]))
+    while(i < parents.shape[0]):
+        children =np.append(children, cxSimulatedBinary(parents[i], parents[i+1], eta_c), axis=0)
+        i +=2
+
+    # mutation
+    low = np.amin(children, axis=0)
+    up = np.amax(children, axis=0)
+    for j in range(children.shape[0]):
+        children[j] = mutPolynomialBounded(children[j], eta_m, low, up, pm)
+
+    return children
+
+def cxSimulatedBinary(ind1, ind2, eta):
+
+    for i, (x1, x2) in enumerate(zip(ind1, ind2)):
+        rand = random.random()
+        if rand <= 0.5:
+            beta = 2. * rand
+        else:
+            beta = 1. / (2. * (1. - rand))
+        beta **= 1. / (eta + 1.)
+        ind1[i] = 0.5 * (((1 + beta) * x1) + ((1 - beta) * x2))
+        ind2[i] = 0.5 * (((1 - beta) * x1) + ((1 + beta) * x2))
+
+    return ind1, ind2
+
+def mutPolynomialBounded(individual, eta, low, up, indpb):
+
+    size = len(individual)
+    for i, xl, xu in zip(range(size), low, up):
+        if random.random() <= indpb:
+            x = individual[i]
+            delta_1 = (x - xl) / (xu - xl)
+            delta_2 = (xu - x) / (xu - xl)
+            rand = random.random()
+            mut_pow = 1.0 / (eta + 1.)
+
+            if rand < 0.5:
+                xy = 1.0 - delta_1
+                val = 2.0 * rand + (1.0 - 2.0 * rand) * xy ** (eta + 1)
+                delta_q = val ** mut_pow - 1.0
+            else:
+                xy = 1.0 - delta_2
+                val = 2.0 * (1.0 - rand) + 2.0 * (rand - 0.5) * xy ** (eta + 1)
+                delta_q = 1.0 - val ** mut_pow
+
+            x = x + delta_q * (xu - xl)
+            x = min(max(x, xl), xu)
+            individual[i] = x
+    return individual
+
+def environmental_selection():
+    pass
+
+
 """
     Grid-Based Evolutionary Algorithm
 """
@@ -138,6 +194,7 @@ t = 0
 while(not termination(number_evaluations, t)):
     grid = grid_setting(p, div, eval_func, num_objectives)
     p_prime = mating_selection(p, grid, number_parents, num_variables, eval_func)
-    # p_double_prime = variation(p_prime)
+    p_double_prime = variation(p_prime, pc, pm, eta_c, eta_m)
+    print(p_double_prime.shape)
     # p = environmental_selection(p + p_double_prime)
     t += 1
