@@ -14,10 +14,10 @@ Environmental selection: Findout best, GR adjustment
 # params
 num_variables = 4
 num_objectives = 3
-n = 10
-number_evaluations = 1
+n = 100
+number_evaluations = 20
 div = 5
-number_parents = 20
+number_parents = 150
 pc = 1
 pm = 1/num_variables
 eta_c = 20
@@ -288,9 +288,9 @@ def gr_adjustment(P, q, q_index, grid, gr, num_objectives):
             if(pd[i] < (m - gd(grid[i], grid[q_index]))):
                 pd[i] = m - gd(grid[i], grid[q_index])
                 for r in range(pd.shape[0]):
-                    if(not (r==i) and grid_dominance(grid[i], grid[r]) and not (grid_dominance(grid[q_index], grid[r]) or grid[q_index] == grid[r]).all()):
+                    if(not (r==i) and grid_dominance(grid[i], grid[r]) and not (grid_dominance(grid[q_index], grid[r]) or (grid[q_index] == grid[r]).all())):
                         if(pd[r]<pd[i]):
-                            pd[r] = pd[p]
+                            pd[r] = pd[i]
 
     for i in range(pd.shape[0]):
         if(not (grid_dominance(grid[q_index], grid[i])) or (grid[q_index] == grid[i]).all()):
@@ -313,9 +313,15 @@ def gcd_calculation(grid, q_grid, gcd):
 
     return gcd
 
-"""
-    Grid-Based Evolutionary Algorithm
-"""
+def show_mean_avg_fitness(p, eval_func, num_objectives):
+    f_x = np.empty((0, num_objectives))
+    for i in range(p.shape[0]):
+        f_x = np.append(f_x, np.array(eval_func(p[i])).reshape(1, -1),axis=0)
+
+    avg_fitness = np.amin(f_x, axis=1)
+    print(avg_fitness)    
+    return
+
 
 dt = DTLZ2(num_objectives, num_variables)
 eval_func = dt.objective_function
@@ -327,4 +333,5 @@ while(not termination(number_evaluations, t)):
     p_prime = mating_selection(p, grid, number_parents, num_variables, eval_func)
     p_double_prime = variation(p_prime, pc, pm, eta_c, eta_m)
     p = environmental_selection(p, p_double_prime, div, eval_func, num_objectives)
+    show_mean_avg_fitness(p, eval_func, num_objectives)
     t += 1
