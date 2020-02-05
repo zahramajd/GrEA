@@ -1,8 +1,11 @@
 import numpy as np
-from optproblems.dtlz import DTLZ2
+import matplotlib.pyplot as plt
+# from optproblems.dtlz import DTLZ2
 import random
+from pymop.problems.dtlz import DTLZ1, DTLZ2, DTLZ3, DTLZ4, DTLZ5, DTLZ6, DTLZ7
+from pymop.factory import get_uniform_weights
 
-# evaluation
+# div
 # dt = DTLZ2(4,14)
 '''
 Grid setting: grid is objevtive
@@ -12,12 +15,12 @@ Variation: simulated binary crossover and polynomial mutation with both distribu
 Environmental selection: Findout best, GR adjustment 
 '''
 # params
-num_variables = 4
-num_objectives = 3
+num_variables = 8
+num_objectives = 4
 n = 100
-number_evaluations = 20
-div = 5
-number_parents = 150
+number_evaluations = 100
+div = 10
+number_parents = 100
 pc = 1
 pm = 1/num_variables
 eta_c = 20
@@ -313,25 +316,47 @@ def gcd_calculation(grid, q_grid, gcd):
 
     return gcd
 
-def show_mean_avg_fitness(p, eval_func, num_objectives):
+def igd_fitness(p, eval_func, num_objectives, reference):
     f_x = np.empty((0, num_objectives))
     for i in range(p.shape[0]):
         f_x = np.append(f_x, np.array(eval_func(p[i])).reshape(1, -1),axis=0)
 
-    avg_fitness = np.amin(f_x, axis=1)
-    print(avg_fitness)    
-    return
+    # print(igd(reference, f_x))
+    # avg_fitness = np.amin(f_x, axis=1)
+    # print(avg_fitness)    
+    return igd(reference, f_x)
+
+def igd(reference, pop_fitness):
+    sum_min_dist = 0
+    for i in range(reference.shape[0]):
+        min_dist = 100000000
+        for j in range(pop_fitness.shape[0]):
+            dist = np.linalg.norm(reference[i]-pop_fitness[j])
+            if (dist < min_dist):
+                min_dist = dist
+        sum_min_dist += min_dist
+    return sum_min_dist/reference.shape[0]
 
 
-dt = DTLZ2(num_objectives, num_variables)
-eval_func = dt.objective_function
+# dt = DTLZ2(num_objectives, num_variables)
+problem = DTLZ1(n_var=num_variables, n_obj=num_objectives)
+eval_func = problem.evaluate
 p = initialize(n, num_variables)
+reference = problem.pareto_front(get_uniform_weights(150, num_objectives))
 t = 0
-
+igds = []
 while(not termination(number_evaluations, t)):
     grid = grid_setting(p, div, eval_func, num_objectives)
     p_prime = mating_selection(p, grid, number_parents, num_variables, eval_func)
     p_double_prime = variation(p_prime, pc, pm, eta_c, eta_m)
     p = environmental_selection(p, p_double_prime, div, eval_func, num_objectives)
-    show_mean_avg_fitness(p, eval_func, num_objectives)
+    igd_val = igd_fitness(p, eval_func, num_objectives, reference)
+    print('# ',t,' : ',"{0:.3f}".format(igd_val))
+    igds.append(igd_val)
     t += 1
+
+%matplotlib inline
+plt.plot(igds)
+plt.ylabel('IGD')
+plt.xlabel('gen')
+plt.title(label='DTLZ1, #variables='+str(num_variables)+' ,#objectives='+str(num_objectives)+' , div='+str(div))
