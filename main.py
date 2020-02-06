@@ -5,7 +5,7 @@ import random
 from pymop.problems.dtlz import DTLZ1, DTLZ2, DTLZ3, DTLZ4, DTLZ5, DTLZ6, DTLZ7
 from pymop.factory import get_uniform_weights
 
-# div
+# plot IGD, div, HV
 # dt = DTLZ2(4,14)
 '''
 Grid setting: grid is objevtive
@@ -15,10 +15,11 @@ Variation: simulated binary crossover and polynomial mutation with both distribu
 Environmental selection: Findout best, GR adjustment 
 '''
 # params
-num_variables = 8
+k = 5
 num_objectives = 4
+num_variables = num_objectives - 1 + k
 n = 100
-number_evaluations = 100
+number_evaluations = 100000
 div = 10
 number_parents = 100
 pc = 1
@@ -354,6 +355,9 @@ while(not termination(number_evaluations, t)):
     print('# ',t,' : ',"{0:.3f}".format(igd_val))
     igds.append(igd_val)
     t += 1
+
+print('best: ', "{0:.3f}".format(min(igds)))
+print('last: ', "{0:.3f}".format(igds[-1]))
 
 %matplotlib inline
 plt.plot(igds)
