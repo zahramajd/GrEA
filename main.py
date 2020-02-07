@@ -5,7 +5,7 @@ import random
 from pymop.problems.dtlz import DTLZ1, DTLZ2, DTLZ3, DTLZ4, DTLZ5, DTLZ6, DTLZ7
 from pymop.factory import get_uniform_weights
 
-# plot IGD, div, HV
+# div, HV
 # dt = DTLZ2(4,14)
 '''
 Grid setting: grid is objevtive
@@ -19,7 +19,7 @@ k = 5
 num_objectives = 4
 num_variables = num_objectives - 1 + k
 n = 100
-number_evaluations = 100000
+number_evaluations = 1000
 div = 10
 number_parents = 100
 pc = 1
@@ -72,7 +72,7 @@ def mating_selection(p, grid, number_parents, num_variables, eval_func):
 
     parents = np.empty((0, num_variables))
     for i in range(number_parents):
-        rand_indices = np.random.choice(p.shape[0], 2, replace=False)
+        rand_indices = np.random.choice(p.shape[0], 2, replace=True)
         winner = tournament_selection(p[rand_indices, :], eval_func, grid[rand_indices], grid).reshape(1,-1)
         parents = np.append(parents, winner, axis=0)
 
