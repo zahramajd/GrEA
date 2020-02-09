@@ -1,12 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-# from optproblems.dtlz import DTLZ2
 import random
 from pymop.problems.dtlz import DTLZ1, DTLZ2, DTLZ3, DTLZ4, DTLZ5, DTLZ6, DTLZ7
 from pymop.factory import get_uniform_weights
 
-# div, HV
-# dt = DTLZ2(4,14)
+
 '''
 Grid setting: grid is objevtive
 Fitness assignment: GR, GCD, GCPD
@@ -359,7 +357,7 @@ while(not termination(number_evaluations, t)):
 print('best: ', "{0:.3f}".format(min(igds)))
 print('last: ', "{0:.3f}".format(igds[-1]))
 
-%matplotlib inline
+# %matplotlib inline
 plt.plot(igds)
 plt.ylabel('IGD')
 plt.xlabel('gen')
