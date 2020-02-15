@@ -14,7 +14,7 @@ Environmental selection: Findout best, GR adjustment
 '''
 # params
 k = 5
-num_objectives = 4
+num_objectives = 8
 num_variables = num_objectives - 1 + k
 n = 100
 number_evaluations = 1000
@@ -40,7 +40,7 @@ def grid_setting(p, div, eval_func, num_objectives):
         maxk = np.amax(fk)
 
         lbk = mink - (maxk - mink)/ (2 * div)
-        ubk = maxk - (maxk - mink)/ (2 * div)
+        ubk = maxk + (maxk - mink)/ (2 * div)
         dk = (ubk - lbk) / div
 
         return np.floor((fk - lbk) / dk)
@@ -361,4 +361,5 @@ print('last: ', "{0:.3f}".format(igds[-1]))
 plt.plot(igds)
 plt.ylabel('IGD')
 plt.xlabel('gen')
-plt.title(label='DTLZ1, #variables='+str(num_variables)+' ,#objectives='+str(num_objectives)+' , div='+str(div))
+plt.title(label='DTLZ1, #var='+str(num_variables)+' ,#obj='+str(num_objectives)+' , div='+str(div)+' ,best: '+str("{0:.3f}".format(min(igds)))+'last: '+str("{0:.3f}".format(igds[-1])))
+plt.savefig(str('DTLZ1:'+str(num_variables)))
