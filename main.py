@@ -14,11 +14,11 @@ Environmental selection: Findout best, GR adjustment
 '''
 # params
 k = 10
-num_objectives = 5
+num_objectives = 4
 num_variables = num_objectives - 1 + k
 n = 100
-number_evaluations = 1000
-div = 9
+number_evaluations = 3
+div = 10
 number_parents = 100
 pc = 1
 pm = 1/num_variables

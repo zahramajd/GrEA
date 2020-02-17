@@ -1,10 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+# from optproblems.dtlz import DTLZ2
 import random
 from pymop.problems.dtlz import DTLZ1, DTLZ2, DTLZ3, DTLZ4, DTLZ5, DTLZ6, DTLZ7
 from pymop.factory import get_uniform_weights
 
-
+# div, HV
+# dt = DTLZ2(4,14)
 '''
 Grid setting: grid is objevtive
 Fitness assignment: GR, GCD, GCPD
@@ -13,8 +15,8 @@ Variation: simulated binary crossover and polynomial mutation with both distribu
 Environmental selection: Findout best, GR adjustment 
 '''
 # params
-k = 10
-num_objectives = 8
+k = 5
+num_objectives = 4
 num_variables = num_objectives - 1 + k
 n = 100
 number_evaluations = 1000
@@ -338,7 +340,7 @@ def igd(reference, pop_fitness):
 
 
 # dt = DTLZ2(num_objectives, num_variables)
-problem = DTLZ3(n_var=num_variables, n_obj=num_objectives)
+problem = DTLZ1(n_var=num_variables, n_obj=num_objectives)
 eval_func = problem.evaluate
 p = initialize(n, num_variables)
 reference = problem.pareto_front(get_uniform_weights(150, num_objectives))
@@ -361,5 +363,4 @@ print('last: ', "{0:.3f}".format(igds[-1]))
 plt.plot(igds)
 plt.ylabel('IGD')
 plt.xlabel('gen')
-plt.title(label='DTLZ3, #var='+str(num_variables)+' ,#obj='+str(num_objectives)+' , div='+str(div)+' ,best: '+str("{0:.3f}".format(min(igds)))+'last: '+str("{0:.3f}".format(igds[-1])))
-plt.savefig(str('DTLZ3:'+str(num_variables)))
+plt.title(label='DTLZ1, #variables='+str(num_variables)+' ,#objectives='+str(num_objectives)+' , div='+str(div))
